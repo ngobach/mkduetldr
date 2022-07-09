@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+BASEDIR="$(dirname $0)"
+HEADERFILE="$BASEDIR/bin/header"
+OUTFILE="duetldr"
+
+get_help() {
+    cat >&2 <<DOC
+Usage:
+    ./mkduetldr [-o duetldr] bootX64
+DOC
+}
+
+die() {
+    printf "Fatal: %s\n" "$1" >&2
+    exit 1
+}
+
+while getopts o: name; do
+    case $name in
+        o)
+            OUTFILE="$OPTARG"
+            ;;
+        ?)
+            get_help
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+if [[ $# = 0 ]]; then
+    get_help
+    exit 1
+fi
+
+if [[ ! -f "$HEADERFILE" ]]; then
+    die "header file not found"
+fi
+
+if [[ ! -f "$1" ]]; then
+    die "\"$1\" file not found"
+fi
+
+cat "$HEADERFILE" "$1" > "$OUTFILE"
+printf "Done.\n\"%s\" has been created.\n" "$OUTFILE"
